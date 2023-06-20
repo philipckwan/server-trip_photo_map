@@ -1,4 +1,4 @@
-import {dateTimeToTimestamp, timeLog, generateToken} from './PCKUtils.js'
+import {dateTimeToTimestamp, timeLog, generateToken, timestampToDateTime} from './PCKUtils.js'
 import {TripAPIResponse} from './TripAPIResponse.js'
 import {Constants} from "./Constants.js"
 import fsp from "fs/promises"
@@ -7,12 +7,14 @@ import path from "path"
 import exifr from "exifr";
 import sharp from "sharp";
 import * as util from "util";
+import {} from 'dotenv/config'
 
 const PATH_STORE = "store"
 const FILE_METADATA = "metadata.json"
 const DIR_PHOTOS_ORIGINAL = "photosOriginal"
 const DIR_THUMBNAILS = "thumbnails"
 const DIR_PHOTOS_METADATA = "photosMetadata"
+const timestamp_offset_override = parseInt(process.env.TIMESTAMP_OFFSET_OVERRIDE);
 
 export class TripPhotoMapManager {
 
@@ -96,7 +98,6 @@ export class TripPhotoMapManager {
   }
 
   static async uploadTripPhoto(photo, username, tripPath) {
-    timeLog(`uploadTripPhoto: 1.0;`);
     let aPhotoIDPicked;
     let aPhotoFile;
     let aPhotoMetadataFile;
@@ -125,11 +126,11 @@ export class TripPhotoMapManager {
     let longitude = "n/a";
     let uploadedBy = username;
     if (exifObj) {
-      timeLog(`__exifObj:[${JSON.stringify(exifObj)}];`);
       if (exifObj.DateTimeOriginal != undefined) {
-        datetime = exifObj.DateTimeOriginal;
-        timeLog(`__datetime:[${datetime}];`);
-        timestamp = dateTimeToTimestamp(datetime);
+        //timeLog(`uploadTripPhoto: exifObj.DateTimeOriginal:[${exifObj.DateTimeOriginal}];`);
+        timestamp = dateTimeToTimestamp(exifObj.DateTimeOriginal) + timestamp_offset_override;
+        datetime = timestampToDateTime(timestamp);
+        //timeLog(`uploadTripPhoto: datetimeFinal:[${datetimeFinal}];`);
       }
       if (exifObj.latitude != undefined) {
         latitude = exifObj.latitude;
