@@ -5,7 +5,8 @@ export function timeLog(msg) {
 };
 
 export function dateTimeToTimestamp(dateTime) {
-    let date = new Date(dateTime)
+    let date = new Date(dateTime);
+    console.log(`__date.getTimezoneOffset():[${date.getTimezoneOffset()}];`);
     return date.getTime()
 }
 
