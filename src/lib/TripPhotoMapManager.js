@@ -125,7 +125,7 @@ export class TripPhotoMapManager {
     let longitude = "n/a";
     let uploadedBy = username;
     if (exifObj) {
-      //timeLog(`__exifObj:[${JSON.stringify(exifObj)}];`);
+      timeLog(`__exifObj:[${JSON.stringify(exifObj)}];`);
       if (exifObj.DateTimeOriginal != undefined) {
         datetime = exifObj.DateTimeOriginal;
         timeLog(`__datetime:[${datetime}];`);
