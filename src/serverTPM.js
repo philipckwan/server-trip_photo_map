@@ -81,11 +81,11 @@ app.post("/trip/access/:token/upload/:username", async (req, res) => {
   if (access == Constants.ACCESS_WRITE) {
     //return res.json(new TripAPIResponse(true, "access granted", {tripPath, access}));
     let photoID = await TripPhotoMapManager.uploadTripPhoto(req.body, username, tripPath);
-      if (photoID == undefined) {
-        return res.json(new TripAPIResponse(false, `ERROR - upload photo failed;`));
-      } else {
-        return res.json(new TripAPIResponse(true, "photo uploaded", {tripPath, access, photoID}))
-      }
+    if (photoID == undefined) {
+      return res.json(new TripAPIResponse(false, `ERROR - upload photo failed;`));
+    } else {
+      return res.json(new TripAPIResponse(true, "photo uploaded", {tripPath, access, photoID}))
+    }
   } else {
     // If this is only a viewToken, but not a writeToken, then access is denied.
     return res.json(new TripAPIResponse(false, "ERROR - access denied", {tripPath, access}));
@@ -207,6 +207,6 @@ app.delete("/trip/access/:token/photos/:photoId", (req, res) => {
 
 app.listen(5000, () => {
   //timeLog("serverBattleship: Server started on port 5000 pck; 3.3");
-  timeLog(`serverTPM: Server started on port 5000; pck: version:${Constants.version};`);
+  timeLog(`serverTPM: Server started on port 5000; pck: version:${Constants.version}; uuid:${Constants.uuid};`);
 
 })
