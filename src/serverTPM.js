@@ -65,15 +65,34 @@ app.post("/trip/login", (req, res) => {
 })
 
 /**
+ * GET /trip/access/<token>/tripMetadata
+ * access: view
+ */
+app.get("/trip/access/:token/tripMetadata", (req, res) => {
+  let token = req.params.token;
+  let {tripPath, access} = TripPhotoMapManager.accessTripByToken(token);
+  if (tripPath == undefined) {
+    return res.json(new TripAPIResponse(false, "ERROR - trip not found by token", {}));
+  }
+
+  if (access == Constants.ACCESS_VIEW || access == Constants.ACCESS_WRITE) {
+    let tripMetadata = TripPhotoMapManager.getPublicTripMetadata(tripPath);
+    return res.json(new TripAPIResponse(true, "got trip metadata", {tripPath, access, tripMetadata}));
+  } else {
+    return res.json(new TripAPIResponse(false, "ERROR - access denied", {tripPath, access}));
+  }
+})
+
+/**
  * POST /trip/access/<token>/upload/<username>
  * access: write
  */
 app.post("/trip/access/:token/upload/:username", async (req, res) => {
   let token = req.params.token;
   let username = req.params.username;
-  timeLog(`serverTPM: post./trip/access/:token/upload/:username; 1.0; token:[${token}] username:[${username}]`);
+  //timeLog(`serverTPM: post./trip/access/:token/upload/:username; 1.0; token:[${token}] username:[${username}]`);
   let {tripPath, access} = TripPhotoMapManager.accessTripByToken(token);
-  timeLog(`serverTPM: from TripPhotoMapManager.accessTripByToken: tripPath:[${tripPath}] access:[${access}]`);
+  //timeLog(`serverTPM: from TripPhotoMapManager.accessTripByToken: tripPath:[${tripPath}] access:[${access}]`);
   if (tripPath == undefined) {
     return res.json(new TripAPIResponse(false, "ERROR - trip not found by token", {}));
   }
@@ -165,6 +184,7 @@ app.get("/trip/access/:token/thumbnails/:photoId", (req, res) => {
 app.get("/trip/access/:token/photos/:photoId", (req, res) => {
   let token = req.params.token;
   let photoId = req.params.photoId;
+  timeLog(`GET /trip/access/<token>/photos/<photoId>; photoId:[${photoId}];`);
   let {tripPath, access} = TripPhotoMapManager.accessTripByToken(token);
   if (tripPath == undefined) {
     return res.json(new TripAPIResponse(false, "ERROR - trip not found by token", {}));
@@ -176,6 +196,33 @@ app.get("/trip/access/:token/photos/:photoId", (req, res) => {
       return res.json(new TripAPIResponse(false, "photo not found", {tripPath, access}));
     }
     return res.json(new TripAPIResponse(true, "got a photo", {tripPath, access, photoB64}));
+  } else {
+    return res.json(new TripAPIResponse(false, "ERROR - access denied", {tripPath, access}));
+  }
+})
+
+/**
+ * GET /trip/access/<token>/photosBinary/<photoId>
+ * access: view
+ */
+app.get("/trip/access/:token/photosBinary/:photoId", (req, res) => {
+  let token = req.params.token;
+  let photoId = req.params.photoId;
+  timeLog(`GET /trip/access/<token>/photosBinary/<photoId>; photoId:[${photoId}];`);
+  let {tripPath, access} = TripPhotoMapManager.accessTripByToken(token);
+  if (tripPath == undefined) {
+    return res.json(new TripAPIResponse(false, "ERROR - trip not found by token", {}));
+  }
+
+  if (access == Constants.ACCESS_VIEW || access == Constants.ACCESS_WRITE) {
+    let photoBinary = TripPhotoMapManager.getPhotoBinary(tripPath, photoId);
+    if (photoBinary == undefined) {
+      return res.json(new TripAPIResponse(false, "photo not found", {tripPath, access}));
+    }
+    //timeLog(`serverTPM: get./trip/access/:token/photosBinary/:photoId; photoBinary.length:[${photoBinary.length}];`);
+    res.writeHead(200);
+    res.end(Buffer.from(photoBinary, 'binary'));
+    //return res.json(new TripAPIResponse(true, "got a photo", {tripPath, access, photoB64}));
   } else {
     return res.json(new TripAPIResponse(false, "ERROR - access denied", {tripPath, access}));
   }

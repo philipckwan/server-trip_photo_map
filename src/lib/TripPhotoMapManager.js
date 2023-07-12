@@ -63,8 +63,18 @@ export class TripPhotoMapManager {
     return new TripAPIResponse(true, `trip login success;`, tripMetadataJson)
   }
 
+  static getPublicTripMetadata(tripPath) {
+    timeLog(`TripPhotoMapManager.getPublicTripMetadata: 1.0;`);
+    let tripMetadataFile = path.join(tripPath, FILE_METADATA);
+    let tripMetadataObject = fs.readFileSync(tripMetadataFile);
+    let tripMetadataJson = JSON.parse(tripMetadataObject);
+    let tripName = tripMetadataJson.tripName;
+
+    return {tripName};
+  }
+
   static accessTripByToken(token) {
-    timeLog(`TripPhotoMapManager.accessTripByToken: token:[${token}]`);
+    //timeLog(`TripPhotoMapManager.accessTripByToken: token:[${token}]`);
 
     let tripPath;
     let access;
@@ -190,14 +200,25 @@ export class TripPhotoMapManager {
 
   static getPhotoB64(tripPath, photoId) {
     let aPhotoB64;
-    let aPhotoB64File = path.join(tripPath, DIR_PHOTOS_ORIGINAL, `${photoId}.jpg`);
+    let aPhotoFile = path.join(tripPath, DIR_PHOTOS_ORIGINAL, `${photoId}.jpg`);
     try {
-      let aPhotoBinary =  fs.readFileSync(aPhotoB64File);
+      let aPhotoBinary =  fs.readFileSync(aPhotoFile);
       aPhotoB64 = aPhotoBinary.toString("base64");
     } catch (err) {
-      timeLog(`getThumbnailB64: ERROR in fs.readFileSync; ${err};`);
+      timeLog(`getPhotoB64: ERROR in fs.readFileSync; ${err};`);
     }
     return aPhotoB64;
+  }
+
+  static getPhotoBinary(tripPath, photoId) {
+    let aPhotoBinary;
+    let aPhotoFile = path.join(tripPath, DIR_PHOTOS_ORIGINAL, `${photoId}.jpg`);
+    try {
+      aPhotoBinary =  fs.readFileSync(aPhotoFile);
+    } catch (err) {
+      timeLog(`getPhotoBinary: ERROR in fs.readFileSync; ${err};`);
+    }
+    return aPhotoBinary;
   }
 
   static deletePhoto(tripPath, photoId) {
