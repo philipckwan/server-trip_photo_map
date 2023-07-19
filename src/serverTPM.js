@@ -14,12 +14,12 @@ app.use(express.json());
 /* This below helps with CORS for calling from other places like a nextjs
  https://stackoverflow.com/questions/65058598/nextjs-cors-issue
 */
-app.use((req, res, next) => {
+app.use((req, res, next) => {  
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
+  );  
 if (req.method == "OPTIONS") {
   res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
   return res.status(200).json({});
@@ -215,13 +215,22 @@ app.get("/trip/access/:token/photosBinary/:photoId", (req, res) => {
   }
 
   if (access == Constants.ACCESS_VIEW || access == Constants.ACCESS_WRITE) {
-    let photoBinary = TripPhotoMapManager.getPhotoBinary(tripPath, photoId);
-    if (photoBinary == undefined) {
+    //let photoBinary = TripPhotoMapManager.getPhotoBinary(tripPath, photoId);
+    let photoFile = TripPhotoMapManager.getPhotoFile(tripPath, photoId);
+    //timeLog(`__photoFile:[${photoFile}];`);
+    if (photoFile == undefined) {
       return res.json(new TripAPIResponse(false, "photo not found", {tripPath, access}));
     }
+    res.sendFile(photoFile);
     //timeLog(`serverTPM: get./trip/access/:token/photosBinary/:photoId; photoBinary.length:[${photoBinary.length}];`);
-    res.writeHead(200);
-    res.end(Buffer.from(photoBinary, 'binary'));
+
+    //res.header('Cache-control', 'max-age=2592000, immutable')
+    //res.set('Cache-Control', 'public, max-age=31557600, s-maxage=31557600');
+    //res.set('Last-Modified', 'Mon, 26 Jun 2023 12:49:32 GMT')
+    //res.set('Expires', 'Wed, 19 Jul 2023 16:32:32 GMT')
+    //res.set('Content-Type', 'image')
+    //res.writeHead(200);
+    //res.end(Buffer.from(photoBinary, 'binary'));
     //return res.json(new TripAPIResponse(true, "got a photo", {tripPath, access, photoB64}));
   } else {
     return res.json(new TripAPIResponse(false, "ERROR - access denied", {tripPath, access}));

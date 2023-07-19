@@ -1,5 +1,5 @@
 todo:
-
--restructure the store
- -map a uuid to a trip, allow the uuid to provide a view only of the trip
+-add logging
+DONE-restructure the store
+ DONE-map a uuid to a trip, allow the uuid to provide a view only of the trip
  

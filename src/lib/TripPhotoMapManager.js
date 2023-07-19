@@ -221,6 +221,11 @@ export class TripPhotoMapManager {
     return aPhotoBinary;
   }
 
+  static getPhotoFile(tripPath, photoId) {
+    let aPhotoFile = path.join(path.resolve(), tripPath, DIR_PHOTOS_ORIGINAL, `${photoId}.jpg`);
+    return aPhotoFile;
+  }
+
   static deletePhoto(tripPath, photoId) {
     let isDeleted = false;
     let aPhotoFile = path.join(tripPath, DIR_PHOTOS_ORIGINAL, `${photoId}.jpg`);
