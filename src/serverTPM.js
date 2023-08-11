@@ -113,6 +113,38 @@ app.post("/trip/access/:token/upload/:username", async (req, res) => {
 })
 
 /**
+ * POST /trip/access/<token>/photosMetadata/<photoID>
+ * access: write
+ * (write comment to photo metadata)
+ */
+app.post("/trip/access/:token/photosMetadata/:photoID", async (req, res) =>{
+  
+  let token = req.params.token;
+  let photoID = req.params.photoID;
+  let comment = req.body.comment;
+  timeLog(`serverTPM: post /trip/access/:token/photosMetadata/:photoID; token:[${token}]; photoID:[${photoID}]; comment:[${comment}];`);
+
+  let {tripPath, access} = TripPhotoMapManager.accessTripByToken(token);
+  if (tripPath == undefined) {
+    return res.json(new TripAPIResponse(false, "ERROR - trip not found by token", {}));
+  }
+  
+  if (access == Constants.ACCESS_WRITE) {
+    //return res.json(new TripAPIResponse(true, "access granted", {tripPath, access}));
+    let results = await TripPhotoMapManager.updatePhotoComment(comment, tripPath, photoID);
+    if (!results) {
+      return res.json(new TripAPIResponse(false, `ERROR - update comment failed;`));
+    } else {
+      return res.json(new TripAPIResponse(true, "comment updated", {tripPath, access, photoID}))
+    }
+  } else {
+    // If this is only a viewToken, but not a writeToken, then access is denied.
+    return res.json(new TripAPIResponse(false, "ERROR - access denied", {tripPath, access}));
+  }
+
+});
+
+/**
  * GET /trip/access/<token>/photosMetadata/
  * access: view
  */

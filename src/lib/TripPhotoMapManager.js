@@ -160,6 +160,31 @@ export class TripPhotoMapManager {
     }
   }
 
+  static async updatePhotoComment(comment, tripPath, photoID) {
+    let thePhotoMetadataFile = path.join(tripPath, DIR_PHOTOS_METADATA, `${photoID}.json`);
+    if (!fs.existsSync(thePhotoMetadataFile)){
+      timeLog(`updatePhotoComment: ERROR - photo metadata file not found;`);
+      return false;
+    }
+    let thePhotoMetadata = fs.readFileSync(thePhotoMetadataFile);
+    let thePhotoMetadataJson = JSON.parse(thePhotoMetadata);
+    
+    if (thePhotoMetadataJson.uploadedByComment && thePhotoMetadataJson.uploadedByComment.length > 0) {
+      timeLog(`updatePhotoComment: uploadedByComment found for photo [${photoID}], will override;`);
+    } else {
+      timeLog(`updatePhotoComment: adding a new uploadedByComment for photo [${photoID}];`);
+    }
+    
+    thePhotoMetadataJson.uploadedByComment = comment;
+    try {
+      let respFspMetadata = await fsp.writeFile(thePhotoMetadataFile, JSON.stringify(thePhotoMetadataJson), {encoding: "utf8"});      
+      return true;
+    } catch (err) {
+      timeLog(`uploadTripPhoto: ERROR - upload photo failed; ${err};`);
+      return false;
+    }
+  }
+
   static getPhotosMetadata(tripPath, photoId = undefined) {
     //timeLog(`getPhotosMetadata: tripPath:[${tripPath}]; photoId:[${photoId}];`);
     let photosMetadataArray = [];
