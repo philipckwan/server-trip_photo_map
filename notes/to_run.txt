@@ -6,6 +6,10 @@ to run:
 $ cd server
 $ npm run dev
 
+to run with stdout and stderr pipe to a log file:
+$ npm run dev > logs.txt 2>&1
+$ npm run start > logs.txt 2>&1
+
 --------------------------
 first time build:
 
